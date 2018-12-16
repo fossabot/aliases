@@ -180,6 +180,7 @@ func LoadConfFile(ctx *context.Context) (*AliasesConf, error) {
 			if cmd.Path == "docker" {
 				return nil, errors.New("docker is not installed. see https://docs.docker.com/install/")
 			}
+			c.DockerRunOpts.Volume = append(c.DockerRunOpts.Volume, fmt.Sprintf("%s:/usr/local/bin/docker", cmd.Path))
 			// see: https://github.com/moby/moby/blob/bb1914b19572524b9f7d2b3415f146c545c1bb8b/client/client.go#L384
 			host := os.Getenv("DOCKER_HOST")
 			if host == "" {
@@ -191,7 +192,6 @@ func LoadConfFile(ctx *context.Context) (*AliasesConf, error) {
 			}
 			if strings.HasPrefix(host, "unix://") {
 				sock := strings.TrimPrefix(host, "unix://")
-				c.DockerRunOpts.Volume = append(c.DockerRunOpts.Volume, fmt.Sprintf("%s:/usr/local/bin/docker", cmd.Path))
 				c.DockerRunOpts.Volume = append(c.DockerRunOpts.Volume, fmt.Sprintf("%s:/var/run/docker.sock", sock))
 				c.DockerRunOpts.Privileged = util.Pbool(true)
 			} else {
